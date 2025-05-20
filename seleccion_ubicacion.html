@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Selección de Ubicación</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      padding: 20px;
+      background-color: #ffffff;
+      max-width: 600px;
+      margin: 0 auto;
+      color: #333;
+    }
+    
+    .deal-header {
+      background-color: #f5f7f8;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .deal-header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    
+    .deal-description {
+      font-size: 16px;
+      margin-top: 10px;
+      color: #555;
+      line-height: 1.4;
+    }
+    
+    .deal-option {
+      position: relative;
+      border: 2px solid #e84c0f;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 25px 0;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    
+    .deal-option:hover {
+      box-shadow: 0 2px 8px rgba(232, 76, 15, 0.2);
+    }
+    
+    .deal-option.selected {
+      background-color: #fff8f6;
+    }
+    
+    .deal-circle {
+      display: none; /* Hide the circle */
+    }
+    
+    .deal-option-text {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 15px;
+      line-height: 1.4;
+    }
+    
+    .price-row {
+      display: flex;
+      align-items: center;
+      margin-top: 15px;
+    }
+    
+    .original-price {
+      font-size: 22px;
+      color: #777;
+      text-decoration: line-through;
+      margin-right: 20px;
+    }
+    
+    .discount-price {
+      font-size: 30px;
+      color: #e84c0f;
+      font-weight: 700;
+      margin-right: 20px;
+    }
+    
+    .discount-badge {
+      background-color: #66d9c1;
+      color: white;
+      font-weight: 700;
+      font-size: 18px;
+      padding: 8px 15px;
+      border-radius: 8px;
+    }
+    
+    .location-dropdown {
+      background-color: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin-top: -15px;
+      margin-bottom: 25px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.3s, opacity 0.3s, margin 0.3s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    
+    .location-dropdown.open {
+      max-height: 300px;
+      opacity: 1;
+      margin-top: 5px;
+    }
+    
+    .location-title {
+      padding: 10px 15px;
+      background-color: #f5f7f8;
+      border-bottom: 1px solid #e0e0e0;
+      font-weight: 600;
+      color: #555;
+      font-size: 14px;
+    }
+    
+    .location-options {
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    .location-option {
+      padding: 12px 15px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: background-color 0.2s;
+    }
+    
+    .location-option:last-child {
+      border-bottom: none;
+    }
+    
+    .location-option:hover {
+      background-color: #f9f9f9;
+    }
+    
+    .location-option.selected {
+      background-color: #fff8f6;
+    }
+    
+    .location-option-name {
+      flex-grow: 1;
+      font-weight: 500;
+    }
+    
+    .location-option-address {
+      font-size: 12px;
+      color: #777;
+      display: block;
+      margin-top: 3px;
+    }
+    
+    .location-radio {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #ccc;
+      border-radius: 50%;
+      margin-right: 12px;
+      position: relative;
+      flex-shrink: 0;
+    }
+    
+    .location-option.selected .location-radio {
+      border-color: #e84c0f;
+    }
+    
+    .location-option.selected .location-radio:after {
+      content: "";
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: #e84c0f;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    .checkout-btn {
+      background-color: white;
+      color: #e84c0f;
+      border: 2px solid #e84c0f;
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
+      text-align: center;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .checkout-btn:before {
+      content: "";
+      position: absolute;
+      top: -15px;
+      left: -15px;
+      width: 30px;
+      height: 30px;
+      background-color: #e84c0f;
+      border-radius: 50%;
+      z-index: 0;
+    }
+    
+    .checkout-btn span {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .checkout-btn.active {
+      background-color: #e84c0f;
+      color: white;
+    }
+    
+    .checkout-btn:hover {
+      background-color: #fff8f6;
+    }
+    
+    .checkout-btn.active:hover {
+      background-color: #d64408;
+      color: white;
+      box-shadow: 0 4px 12px rgba(232, 76, 15, 0.3);
+    }
+    
+    .selected-location-info {
+      background-color: #f8f8f8;
+      border-radius: 8px;
+      padding: 12px 15px;
+      margin-top: 20px;
+      display: none;
+    }
+    
+    .selected-location-info.visible {
+      display: block;
+    }
+    
+    .selected-location-title {
+      font-weight: 600;
+      margin-bottom: 5px;
+      font-size: 15px;
+    }
+    
+    .selected-location-address {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .selected-location-hours {
+      font-size: 13px;
+      color: #777;
+      margin-top: 5px;
+    }
+    
+    .location-tag {
+      font-size: 12px;
+      background-color: #e8f4ff;
+      color: #0066cc;
+      border-radius: 12px;
+      padding: 3px 8px;
+      margin-left: 8px;
+      display: inline-block;
+    }
+    
+    .location-reminder {
+      background-color: #fff8f6;
+      border: 1px dashed #e84c0f;
+      color: #e84c0f;
+      font-size: 14px;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { opacity: 0.8; }
+    }
+    
+    .location-reminder.show {
+      display: block;
+    }
+    
+    /* Modal Styles */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: none;
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(3px);
+    }
+    
+    .modal-backdrop.show {
+      display: flex;
+      animation: fadeIn 0.2s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .modal-container {
+      background-color: white;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 480px;
+      max-height: 95vh;
+      min-height: 80vh;
+      overflow: hidden;
+      animation: modalFadeIn 0.3s ease;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      background-color: #fff;
+      border-bottom: 1px solid #eee;
+      flex-shrink: 0;
+    }
+    
+    .modal-title {
+      font-weight: 700;
+      font-size: 18px;
+      color: #222;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+      font-size: 22px;
+    }
+    
+    .modal-close:hover {
+      background-color: #f5f5f5;
+      color: #e84c0f;
+    }
+    
+    .modal-body {
+      max-height: none;
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .modal-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .modal-body::-webkit-scrollbar-track {
+      background: #f5f5f5;
+    }
+    
+    .modal-body::-webkit-scrollbar-thumb {
+      background-color: #ddd;
+      border-radius: 3px;
+    }
+    
+    .selected-deal-summary {
+      background-color: #fff8f6;
+      border-bottom: 1px solid #f0e0dc;
+      padding: 8px 10px;
+      position: relative;
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+    
+    .selected-deal-summary::after {
+      content: "";
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 8px solid #f0e0dc;
+      z-index: 1;
+    }
+    
+    .selected-deal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    
+    .selected-deal-header-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .selected-deal-check {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      background-color: #66d9c1;
+      border-radius: 50%;
+      width: 15px;
+      height: 15px;
+      font-size: 9px;
+      margin-left: 5px;
+    }
+    
+    .selected-deal-title {
+      font-weight: 600;
+      font-size: 16px;
+      color: #222;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .selected-deal-title-tag {
+      display: inline-block;
+      background-color: #e84c0f;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-right: 8px;
+    }
+    
+    .selected-deal-description {
+      font-size: 12px;
+      color: #666;
+      margin: 3px 0 5px;
+      line-height: 1.4;
+    }
+    
+    .selected-deal-price {
+      display: flex;
+      align-items: center;
+      margin-top: 2px;
+    }
+    
+    .selected-deal-price .discount-price {
+      font-size: 16px;
+      margin-right: 8px;
+      font-weight: 700;
+      color: #e84c0f;
+    }
+    
+    .selected-deal-price .original-price {
+      font-size: 12px;
+      margin-right: 8px;
+      color: #888;
+    }
+    
+    .selected-deal-price .discount-badge {
+      font-size: 11px;
+      padding: 2px 6px;
+      background-color: #66d9c1;
+      border-radius: 4px;
+    }
+    
+    .location-selection-instruction {
+      background-color: #f2f7ff;
+      color: #2468d8;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      border-bottom: 1px solid #e0ecff;
+      flex-shrink: 0;
+    }
+    
+    .location-option {
+      padding: 14px 20px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+    
+    .location-option:last-child {
+      border-bottom: none;
+    }
+    
+    .location-option:hover {
+      background-color: #f9f9f9;
+    }
+    
+    .location-option.selected {
+      background-color: #fff8f6;
+      transform: translateX(3px);
+    }
+    
+    .location-option-name {
+      flex-grow: 1;
+      font-weight: 600;
+      font-size: 15px;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .location-option-address {
+      font-size: 13px;
+      color: #777;
+      display: block;
+      margin-top: 3px;
+      font-weight: normal;
+    }
+    
+    .location-radio {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ddd;
+      border-radius: 50%;
+      margin-right: 15px;
+      position: relative;
+      flex-shrink: 0;
+      transition: border-color 0.2s;
+    }
+    
+    .location-option:hover .location-radio {
+      border-color: #e0e0e0;
+    }
+    
+    .location-option.selected .location-radio {
+      border-color: #e84c0f;
+      border-width: 2px;
+    }
+    
+    .location-option.selected .location-radio:after {
+      content: "";
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: #e84c0f;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: pulseIn 0.2s ease;
+    }
+    
+    @keyframes pulseIn {
+      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    
+    .location-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background-color: #f0f0f0;
+      color: #666;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 12px;
+      transition: all 0.2s;
+    }
+    
+    .location-option.selected .location-number {
+      background-color: #e84c0f;
+      color: white;
+    }
+    
+    .modal-footer {
+      padding: 15px 20px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .modal-confirm-btn {
+      background-color: #e84c0f;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 25px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    
+    .modal-confirm-btn:hover {
+      background-color: #d44409;
+      box-shadow: 0 4px 10px rgba(232, 76, 15, 0.25);
+    }
+    
+    .modal-confirm-btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        max-width: 100%;
+      }
+      
+      .deal-header {
+        padding: 15px;
+      }
+      
+      .deal-header h1 {
+        font-size: 22px;
+      }
+      
+      .deal-description {
+        font-size: 15px;
+      }
+      
+      .deal-option {
+        padding: 15px;
+        margin: 20px 0;
+      }
+      
+      .deal-option-text {
+        font-size: 15px;
+        line-height: 1.3;
+      }
+      
+      .price-row {
+        flex-wrap: wrap;
+      }
+      
+      .original-price {
+        font-size: 18px;
+      }
+      
+      .discount-price {
+        font-size: 24px;
+      }
+      
+      .discount-badge {
+        font-size: 16px;
+        padding: 6px 12px;
+      }
+      
+      .modal-container {
+        width: 95%;
+        max-height: 80vh;
+        margin: 10px;
+      }
+      
+      .modal-body {
+        max-height: 70vh;
+      }
+      
+      .location-option {
+        padding: 10px 12px;
+      }
+      
+      .location-option-name {
+        font-size: 15px;
+      }
+      
+      .location-option-address {
+        font-size: 11px;
+      }
+      
+      .selected-location-info {
+        padding: 10px;
+      }
+      
+      .selected-location-title {
+        font-size: 14px;
+      }
+      
+      .selected-location-address,
+      .selected-location-hours {
+        font-size: 13px;
+      }
+      
+      .checkout-btn {
+        padding: 14px;
+        font-size: 16px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      
+      .deal-header {
+        padding: 12px;
+      }
+      
+      .deal-header h1 {
+        font-size: 20px;
+      }
+      
+      .deal-description {
+        font-size: 14px;
+      }
+      
+      .deal-option {
+        padding: 12px;
+      }
+      
+      .deal-option-text {
+        font-size: 14px;
+      }
+      
+      .original-price {
+        font-size: 16px;
+      }
+      
+      .discount-price {
+        font-size: 22px;
+      }
+      
+      .discount-badge {
+        font-size: 14px;
+        padding: 5px 10px;
+      }
+      
+      .modal-title {
+        font-size: 16px;
+      }
+      
+      .checkout-btn {
+        padding: 12px;
+        font-size: 15px;
+      }
+      
+      /* Enhanced mobile touch targets */
+      .location-radio {
+        width: 24px;
+        height: 24px;
+      }
+      
+      .location-option {
+        padding: 14px 12px;
+        margin-bottom: 2px;
+      }
+      
+      .modal-close {
+        width: 40px;
+        height: 40px;
+      }
+      
+      .location-option.selected .location-radio:after {
+        width: 12px;
+        height: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="deal-header">
+    <h1>Selecciona una opción</h1>
+  </div>
+  
+  <div class="deal-option" data-option="1">
+    <div class="deal-circle"></div>
+    <div class="deal-option-text">
+      DOMINGO A JUEVES - RESORT: 1 noche<br>
+      TODO INCLUIDO para 2 personas + 1<br>
+      botella de vino espumoso + late check-out.
+    </div>
+    <div class="price-row">
+      <div class="original-price">$274</div>
+      <div class="discount-price">$139</div>
+      <div class="discount-badge">-49%</div>
+    </div>
+  </div>
+  
+  <div class="deal-option" data-option="2">
+    <div class="deal-circle"></div>
+    <div class="deal-option-text">
+      VIERNES Y SÁBADO - RESORT: 1 noche<br>
+      TODO INCLUIDO para 2 personas + cena romántica + <br>
+      acceso a la zona de spa exclusiva.
+    </div>
+    <div class="price-row">
+      <div class="original-price">$325</div>
+      <div class="discount-price">$179</div>
+      <div class="discount-badge">-45%</div>
+    </div>
+  </div>
+  
+  <div class="deal-option" data-option="3">
+    <div class="deal-circle"></div>
+    <div class="deal-option-text">
+      ESPECIAL DE TEMPORADA: 2 noches<br>
+      TODO INCLUIDO para 2 personas + 2 masajes de 30 min + <br>
+      traslado al aeropuerto incluido.
+    </div>
+    <div class="price-row">
+      <div class="original-price">$499</div>
+      <div class="discount-price">$249</div>
+      <div class="discount-badge">-50%</div>
+    </div>
+  </div>
+  
+  <div class="location-reminder" id="locationReminder">
+    Por favor selecciona una ubicación para continuar
+  </div>
+  
+  <div class="selected-location-info">
+    <div class="selected-location-title">Ubicación seleccionada: <span id="selectedLocationName">Ninguna</span></div>
+    <div class="selected-location-address" id="selectedLocationAddress"></div>
+    <div class="selected-location-hours">Horario: Lun-Vie 11am-9pm, Sáb-Dom 12pm-10pm</div>
+  </div>
+  
+  <button class="checkout-btn"><span>Comprar</span></button>
+  
+  <!-- Location Modal -->
+  <div class="modal-backdrop" id="locationModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title">Selecciona tu ubicación</div>
+        <button class="modal-close" id="closeModal">&times;</button>
+      </div>
+      <div class="selected-deal-summary" id="selectedDealSummary">
+        <div class="selected-deal-header">
+          <div class="selected-deal-header-title">
+            OPCIÓN SELECCIONADA <span class="selected-deal-check">✓</span>
+          </div>
+        </div>
+        <div class="selected-deal-title">
+          <span class="selected-deal-title-tag" id="modalDealTag">Op. 1</span>
+          <span id="modalDealTitle">Ninguna</span>
+        </div>
+        <div class="selected-deal-description" id="modalDealDescription"></div>
+        <div class="selected-deal-price">
+          <div class="discount-price" id="modalDealPrice"></div>
+          <div class="original-price" id="modalOriginalPrice"></div>
+          <div class="discount-badge" id="modalDealDiscount"></div>
+        </div>
+      </div>
+      <div class="location-selection-instruction">
+        Por favor, selecciona una de <span class="location-counter-highlight" id="instructionLocationCount">9</span> ubicaciones para comprar
+      </div>
+      <div class="modal-body">
+        <div class="location-options">
+          <div class="location-option">
+            <div class="location-radio"></div>
+            <div>
+              <span class="location-number">1</span>
+              <span class="location-option-name">Altaplaza</span>
+              <span class="location-option-address">Local #212, 2do piso</span>
+            </div>
+          </div>
+          <div class="location-option">
+            <div class="location-radio"></div>
+            <div>
+              <span class="location-number">2</span>
+              <span class="location-option-name">Albrook Mall</span>
+              <span class="location-option-address">Pasillo del Delfín, local #42</span>
+            </div>
+          </div>
+          <div class="location-option">
+            <div class="location-radio"></div>
+            <div>
+              <span class="location-number">3</span>
+              <span class="location-option-name">Gamboa</span>
+              <span class="location-option-address">Av. Principal, Plaza Central</span>
+            </div>
+          </div>
+          <div class="location-option">
+            <div class="location-radio"></div>
+            <div>
+              <span class="location-number">4</span>
+              <span class="location-option-name">Boquete</span>
+              <span class="location-option-address">Calle Central, frente al parque</span>
+            </div>
+          </div>
+          <div class="location-option">
+            <div class="location-radio"></div>
+            <div>
+              <span class="location-number">5</span>
+              <span class="location-option-name">David</span>
+              <span class="location-option-address">Centro Comercial Chiriquí, local #8</span>
+            </div>
+          </div>
+          <div class="location-option">
+            <div class="location-radio"></div>
+            <div>
+              <span class="location-number">6</span>
+              <span class="location-option-name">Juan Díaz</span>
+              <span class="location-option-address">C.C. Los Pueblos, entrada sur</span>
+            </div>
+          </div>
+          <div class="location-option">
+            <div class="location-radio"></div>
+            <div>
+              <span class="location-number">7</span>
+              <span class="location-option-name">Costa del Este</span>
+              <span class="location-option-address">Town Center, local #105</span>
+            </div>
+          </div>
+          <div class="location-option">
+            <div class="location-radio"></div>
+            <div>
+              <span class="location-number">8</span>
+              <span class="location-option-name">Coronado</span>
+              <span class="location-option-address">Plaza Coronado, local #23</span>
+            </div>
+          </div>
+          <div class="location-option">
+            <div class="location-radio"></div>
+            <div>
+              <span class="location-number">9</span>
+              <span class="location-option-name">Casco Antiguo</span>
+              <span class="location-option-address">Calle 5ta, edificio histórico</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-confirm-btn" id="confirmLocation">Comprar</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const dealOptions = document.querySelectorAll('.deal-option');
+      const locationModal = document.getElementById('locationModal');
+      const closeModalBtn = document.getElementById('closeModal');
+      const locationOptions = document.querySelectorAll('.location-option');
+      const checkoutBtn = document.querySelector('.checkout-btn');
+      const selectedLocationInfo = document.querySelector('.selected-location-info');
+      const selectedLocationName = document.getElementById('selectedLocationName');
+      const selectedLocationAddress = document.getElementById('selectedLocationAddress');
+      const locationReminder = document.getElementById('locationReminder');
+      
+      // Modal deal summary elements
+      const modalDealTitle = document.getElementById('modalDealTitle');
+      const modalDealTag = document.getElementById('modalDealTag');
+      const modalDealDescription = document.getElementById('modalDealDescription');
+      const modalDealPrice = document.getElementById('modalDealPrice');
+      const modalOriginalPrice = document.getElementById('modalOriginalPrice');
+      const modalDealDiscount = document.getElementById('modalDealDiscount');
+      const selectedDealSummary = document.getElementById('selectedDealSummary');
+      const instructionLocationCount = document.getElementById('instructionLocationCount');
+      const confirmLocationBtn = document.getElementById('confirmLocation');
+      
+      let locationSelected = false;
+      let selectedDealOption = null;
+      let selectedLocationElement = null;
+      
+      // Set location count
+      const totalLocations = locationOptions.length;
+      instructionLocationCount.textContent = totalLocations.toString();
+      
+      // Disable confirm button initially
+      confirmLocationBtn.disabled = true;
+      
+      // If only one location, auto-select it and skip modal
+      if (locationOptions.length === 1) {
+        locationOptions[0].classList.add('selected');
+        const name = locationOptions[0].querySelector('.location-option-name').textContent;
+        const address = locationOptions[0].querySelector('.location-option-address').textContent;
+        selectedLocationName.textContent = name;
+        selectedLocationAddress.textContent = address;
+        selectedLocationInfo.classList.add('visible');
+        checkoutBtn.classList.add('active');
+        locationSelected = true;
+      } else {
+        // Toggle modal on deal option click
+        dealOptions.forEach(option => {
+          option.addEventListener('click', function() {
+            // Deselect all other options
+            dealOptions.forEach(opt => {
+              if (opt !== this) {
+                opt.classList.remove('selected');
+              }
+            });
+            
+            // Toggle this option
+            this.classList.toggle('selected');
+            selectedDealOption = this.classList.contains('selected') ? this : null;
+            
+            // Show modal if option is selected
+            if (this.classList.contains('selected')) {
+              // Update modal with selected deal info
+              updateModalDealInfo(this);
+              locationModal.classList.add('show');
+              document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            }
+          });
+        });
+        
+        // Close modal when clicking the close button
+        closeModalBtn.addEventListener('click', function() {
+          locationModal.classList.remove('show');
+          document.body.style.overflow = ''; // Restore scrolling
+        });
+        
+        // Close modal when clicking outside the modal content
+        locationModal.addEventListener('click', function(e) {
+          if (e.target === locationModal) {
+            locationModal.classList.remove('show');
+            document.body.style.overflow = ''; // Restore scrolling
+          }
+        });
+        
+        // Handle location selection
+        locationOptions.forEach(option => {
+          option.addEventListener('click', function() {
+            // Remove selection from all options
+            locationOptions.forEach(opt => opt.classList.remove('selected'));
+            
+            // Select this option
+            this.classList.add('selected');
+            selectedLocationElement = this;
+            
+            // Get location name and address
+            const name = this.querySelector('.location-option-name').textContent;
+            const address = this.querySelector('.location-option-address').textContent;
+            
+            // Update selected location info (but don't close modal yet)
+            selectedLocationName.textContent = name;
+            selectedLocationAddress.textContent = address;
+            
+            // Activate confirm button
+            confirmLocationBtn.classList.add('active');
+            confirmLocationBtn.disabled = false;
+          });
+        });
+        
+        // Handle confirm button click
+        confirmLocationBtn.addEventListener('click', function() {
+          if (selectedLocationElement) {
+            // Get location name for checkout
+            const locationName = selectedLocationElement.querySelector('.location-option-name').textContent;
+            const selectedDeal = document.querySelector('.deal-option.selected');
+            const dealOption = selectedDeal ? selectedDeal.getAttribute('data-option') : '1';
+            const dealPrice = selectedDeal ? selectedDeal.querySelector('.discount-price').textContent : '$139';
+            
+            // Mark as selected and update UI
+            locationSelected = true;
+            checkoutBtn.classList.add('active');
+            locationReminder.classList.remove('show');
+            selectedLocationInfo.classList.add('visible');
+            
+            // Close modal
+            locationModal.classList.remove('show');
+            document.body.style.overflow = ''; // Restore scrolling
+            
+            // Proceed to checkout directly
+            alert(`Procediendo al pago para la oferta #${dealOption} (${dealPrice}) en ${locationName}`);
+            // Here you would redirect to checkout
+            // window.location.href = "checkout.html?location=" + encodeURIComponent(locationName) + "&deal=" + dealOption;
+          } else {
+            // Alert user to select a location first
+            alert('Por favor selecciona una ubicación antes de continuar');
+          }
+        });
+      }
+      
+      // Handle checkout button click
+      checkoutBtn.addEventListener('click', function() {
+        if (locationSelected) {
+          // Get selected location
+          const selectedOption = document.querySelector('.location-option.selected');
+          
+          if (selectedOption) {
+            const locationName = selectedOption.querySelector('.location-option-name').textContent;
+            const selectedDeal = document.querySelector('.deal-option.selected');
+            const dealOption = selectedDeal ? selectedDeal.getAttribute('data-option') : '1';
+            const dealPrice = selectedDeal ? selectedDeal.querySelector('.discount-price').textContent : '$139';
+            
+            alert(`Procediendo al pago para la oferta #${dealOption} (${dealPrice}) en ${locationName}`);
+            
+            // Here you would pass the selection to your checkout process
+            // location.href = "checkout.html?location=" + encodeURIComponent(locationName) + "&deal=" + dealOption;
+          }
+        } else {
+          // Show modal to select a location
+          if (!selectedDealOption) {
+            // If no deal is selected, select the first one
+            dealOptions[0].classList.add('selected');
+            selectedDealOption = dealOptions[0];
+            updateModalDealInfo(selectedDealOption);
+          }
+          
+          locationModal.classList.add('show');
+          document.body.style.overflow = 'hidden'; // Prevent background scrolling
+          
+          // Show reminder message
+          locationReminder.classList.add('show');
+        }
+      });
+      
+      // Function to update the modal with selected deal info
+      function updateModalDealInfo(dealElement) {
+        if (!dealElement) {
+          selectedDealSummary.style.display = 'none';
+          return;
+        }
+        
+        const dealOption = dealElement.getAttribute('data-option');
+        const dealText = dealElement.querySelector('.deal-option-text').innerHTML;
+        const discountPrice = dealElement.querySelector('.discount-price').textContent;
+        const originalPrice = dealElement.querySelector('.original-price').textContent;
+        const discountBadge = dealElement.querySelector('.discount-badge').textContent;
+        
+        // Hide the title completely
+        modalDealTitle.style.display = 'none';
+        modalDealTag.style.display = 'none';
+        
+        // Create a compact description that doesn't repeat the title
+        const descriptionLines = dealText.split('<br>');
+        // Create a simplified description with just core information
+        const compactDescription = 'TODO INCLUIDO para 2 personas + extras';
+        
+        modalDealDescription.innerHTML = compactDescription;
+        modalDealPrice.textContent = discountPrice;
+        modalOriginalPrice.textContent = originalPrice;
+        modalDealDiscount.textContent = discountBadge;
+        
+        selectedDealSummary.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html> 
